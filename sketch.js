@@ -5,7 +5,6 @@ function setup() {
   createCanvas(800, 600);
   createVehicles();
 
-  // Event listener for toggling debug mode
   document.addEventListener('keydown', function(event) {
     if (event.key === 'd' || event.key === 'D') {
       debugMode = !debugMode;
@@ -15,24 +14,20 @@ function setup() {
 
 function draw() {
   background(0);
-
-  // Update vehicle parameters from sliders
-  const distance = parseFloat(document.getElementById('distanceSlider').value);
-  const radius = parseFloat(document.getElementById('radiusSlider').value);
-  const theta = parseFloat(document.getElementById('thetaSlider').value);
-  const maxSpeed = parseFloat(document.getElementById('maxSpeedSlider').value);
-  const maxForce = parseFloat(document.getElementById('maxForceSlider').value);
+  updateVehicleParams();
 
   vehicles.forEach(vehicle => {
-    vehicle.setParameters(distance, radius, theta, maxSpeed, maxForce);
     vehicle.wander();
+    vehicle.avoidCollisions(vehicles);
+    vehicle.applyBehaviors(vehicles);
     vehicle.update();
     vehicle.show(debugMode);
     vehicle.edges();
   });
+  
+  displayStats();
 }
 
-// Function to create vehicles with random starting positions, sizes, and colors
 function createVehicles() {
   vehicles = [];
   const count = parseInt(document.getElementById('vehicleCountSlider').value);
@@ -42,4 +37,30 @@ function createVehicles() {
     let vehicle = new Vehicle(x, y, random(10, 20), color(random(255), random(255), random(255)));
     vehicles.push(vehicle);
   }
+}
+
+function updateVehicleParams() {
+  const distance = parseFloat(document.getElementById('distanceSlider').value);
+  const radius = parseFloat(document.getElementById('radiusSlider').value);
+  const theta = parseFloat(document.getElementById('thetaSlider').value);
+  const maxSpeed = parseFloat(document.getElementById('maxSpeedSlider').value);
+  const maxForce = parseFloat(document.getElementById('maxForceSlider').value);
+  const perceptionRadius = parseFloat(document.getElementById('perceptionSlider').value);
+  const cohesionForce = parseFloat(document.getElementById('cohesionSlider').value);
+  const alignForce = parseFloat(document.getElementById('alignSlider').value);
+
+  vehicles.forEach(vehicle => {
+    vehicle.setParameters(distance, radius, theta, maxSpeed, maxForce, perceptionRadius, cohesionForce, alignForce);
+  });
+}
+
+function mousePressed() {
+  let vehicle = new Vehicle(mouseX, mouseY, random(10, 20), color(random(255), random(255), random(255)));
+  vehicles.push(vehicle);
+}
+
+function displayStats() {
+  fill(255);
+  textSize(12);
+  text(`Nombre de véhicules : ${vehicles.length}`, 10, height - 20);
 }

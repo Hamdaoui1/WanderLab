@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sketch</title>
+  <title>WanderLab</title>
   <link rel="stylesheet" type="text/css" href="style.css">
   <script src="libraries/p5.min.js"></script>
-  <script src="libraries/p5.sound.min.js"></script>
   <script src="vehicle.js"></script>
   <script src="sketch.js"></script>
 </head>
@@ -22,8 +21,15 @@
     <input type="range" id="maxSpeedSlider" min="1" max="10" value="4">
     <label>Force Maximale</label>
     <input type="range" id="maxForceSlider" min="0.1" max="1" step="0.01" value="0.2">
+    <label>Perception Radius</label>
+    <input type="range" id="perceptionSlider" min="20" max="100" value="50">
+    <label>Cohesion Force</label>
+    <input type="range" id="cohesionSlider" min="0.1" max="1" step="0.1" value="0.5">
+    <label>Align Force</label>
+    <input type="range" id="alignSlider" min="0.1" max="1" step="0.1" value="0.5">
     <label>Nombre de Véhicules</label>
     <input type="range" id="vehicleCountSlider" min="1" max="50" value="20">
   </div>
+  <p id="stats"></p>
 </body>
 </html>

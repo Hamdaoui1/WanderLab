@@ -11,12 +11,15 @@ class Vehicle {
     this.path = [];
   }
 
-  setParameters(distance, radius, theta, maxSpeed, maxForce) {
+  setParameters(distance, radius, theta, maxSpeed, maxForce, perceptionRadius, cohesionForce, alignForce) {
     this.wanderDistance = distance;
     this.wanderRadius = radius;
     this.thetaVariation = theta;
     this.maxSpeed = maxSpeed;
     this.maxForce = maxForce;
+    this.perceptionRadius = perceptionRadius;
+    this.cohesionForce = cohesionForce;
+    this.alignForce = alignForce;
   }
 
   wander() {
@@ -34,6 +37,80 @@ class Vehicle {
     this.applyForce(steer);
 
     this.wanderTheta += random(-this.thetaVariation, this.thetaVariation);
+  }
+
+  avoidCollisions(vehicles) {
+    let steering = createVector();
+    let total = 0;
+
+    vehicles.forEach(other => {
+      let distance = p5.Vector.dist(this.pos, other.pos);
+      if (other != this && distance < this.perceptionRadius) {
+        let diff = p5.Vector.sub(this.pos, other.pos);
+        diff.div(distance);
+        steering.add(diff);
+        total++;
+      }
+    });
+
+    if (total > 0) {
+      steering.div(total);
+      steering.setMag(this.maxSpeed);
+      steering.sub(this.vel);
+      steering.limit(this.maxForce);
+      this.applyForce(steering);
+    }
+  }
+
+  cohesion(vehicles) {
+    let steering = createVector();
+    let total = 0;
+
+    vehicles.forEach(other => {
+      let distance = p5.Vector.dist(this.pos, other.pos);
+      if (other != this && distance < this.perceptionRadius) {
+        steering.add(other.pos);
+        total++;
+      }
+    });
+
+    if (total > 0) {
+      steering.div(total);
+      steering.sub(this.pos);
+      steering.setMag(this.cohesionForce);
+      steering.sub(this.vel);
+      steering.limit(this.maxForce);
+    }
+    return steering;
+  }
+
+  align(vehicles) {
+    let steering = createVector();
+    let total = 0;
+
+    vehicles.forEach(other => {
+      let distance = p5.Vector.dist(this.pos, other.pos);
+      if (other != this && distance < this.perceptionRadius) {
+        steering.add(other.vel);
+        total++;
+      }
+    });
+
+    if (total > 0) {
+      steering.div(total);
+      steering.setMag(this.alignForce);
+      steering.sub(this.vel);
+      steering.limit(this.maxForce);
+    }
+    return steering;
+  }
+
+  applyBehaviors(vehicles) {
+    let cohesionForce = this.cohesion(vehicles);
+    let alignForce = this.align(vehicles);
+
+    this.applyForce(cohesionForce);
+    this.applyForce(alignForce);
   }
 
   applyForce(force) {
